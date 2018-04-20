@@ -53,11 +53,16 @@ class OvsdbClient:
             #pprint.pprint(port)
             uuid = port["_uuid"][1]
             name = port["name"]
-            tags = port["tag"]
+            tag = port["tag"]
+            trunks = port["trunks"][1]
+            
+            if type(tag) is not int:
+                tag = []
             
             ret[uuid] = {
                 "name" : name,
-                "tags" : tags
+                "tag" : tag,
+                "trunks" : trunks
             }
         
         return ret
@@ -102,13 +107,19 @@ class OvsdbClient:
         bridges = self.get_bridges()
         ports = self.get_ports()
         
-        for br in bridges.values():
-            for br_port in br["ports"]:
-                print "%s %s" % (br["name"], ports[br_port])
+        ret = {}
         
+        for br in bridges.values():
+            ret[br["name"]] = {
+                "ports" : {}
+            }
+            for port_uuid in br["ports"]:
+                ret[br["name"]]["ports"][port_uuid] = ports[port_uuid]
+        
+        return ret
 
 if __name__ == '__main__':
     ovsdb = OvsdbClient(5678)
     
-    ovsdb.get_bridge_config()
+    print(json.dumps(ovsdb.get_bridge_config()))
     
