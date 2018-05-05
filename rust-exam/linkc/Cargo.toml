@@ -1,0 +1,12 @@
+[package]
+name = "linkc"
+version = "0.1.0"
+authors = ["kamaboko123 <6112062+kamaboko123@users.noreply.github.com>"]
+links = "hello"
+build = "build.rs"
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+gcc = "0.3"
