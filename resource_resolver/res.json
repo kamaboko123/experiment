@@ -1,0 +1,21 @@
+{
+    "variables":{
+        "val1" : "1"
+    },
+    "resources":{
+        "r1":{
+            "data":{
+                "a" : ["ref", "val1"],
+                "b" : [["ref", "val1"]],
+                "c" : {
+                    "d":["ref", "val1"],
+                    "e":{
+                        "f":[
+                            ["ref", "val99"]
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
