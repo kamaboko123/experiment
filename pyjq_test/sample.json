@@ -1,0 +1,28 @@
+{
+    "users": [
+        {
+            "name": "Seri",
+            "data":{
+                "age" : 27
+            }
+        },
+        {
+            "name":  "Hakobera",
+            "data":{
+                "age": 27
+            }
+        },
+        {
+            "name":  "Suzuna",
+            "data":{
+                "age": 18
+            }
+        },
+        {
+            "name": "Suzusiro",
+            "data": {
+                "age": 22
+            }
+        }
+    ]
+}
