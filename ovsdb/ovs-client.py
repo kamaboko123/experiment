@@ -6,6 +6,7 @@
 import socket
 import json
 import ipaddress
+import uuid
 from pprint import pprint
 
 RCV_BUF = 8192
@@ -14,6 +15,8 @@ class OvsdbClient:
     
     _ovsdb_ip = None
     _ovsdb_port = None
+    
+    _transact_id = 0
     
     def __init__(self, ovsdb_port, ovsdb_ip="127.0.0.1"):
         self._ovsdb_ip = ipaddress.ip_address(unicode(ovsdb_ip))
@@ -87,7 +90,7 @@ class OvsdbClient:
             raise Exception("なんかのエラー")
         
         ret = {}
-        
+        """
         for br in result["result"][0]["rows"]:
             uuid = br["_uuid"][1]
             name = br["name"]
@@ -102,23 +105,26 @@ class OvsdbClient:
             }
         
         return ret
+        """
+        return result["result"][0]["rows"]
     
     def get_bridge_config(self):
         bridges = self.get_bridges()
         ports = self.get_ports()
         
-        ret = {}
+        ret = []
         
         for br in bridges.values():
             ret[br["name"]] = {
                 "ports" : {}
             }
+            
             for port_uuid in br["ports"]:
                 ret[br["name"]]["ports"][port_uuid] = ports[port_uuid]
-        
+            
         return ret
     
-    def get_interface(self):
+    def get_interfaces(self):
         query = {
             "method":"transact",
             "params":[
@@ -134,33 +140,58 @@ class OvsdbClient:
         
         result = self._send(query)
         
-        pprint(result["result"][0]["rows"])
+        #pprint(result["result"][0]["rows"])
+        return(result["result"][0]["rows"])
     
-    def add_interface(self):
+    def add_interface(self, bridge_name, interface_name, vlan=None):
+        for interface in self.get_interfaces():
+            if interface_name == interface["name"]:
+                raise Exception("the interface already exisit %s" % interface_name)
+            if interface["type"] == "internal":
+                continue
+            print("%s : %s" % (interface["name"], interface["_uuid"]))
+        
+        print
+        target_bridge = None
+        ports = []
+        for bridge in self.get_bridges():
+            print("%s : %s" % (bridge["name"], bridge["_uuid"]))
+            if bridge_name == bridge["name"]:
+                target_bridge = bridge["_uuid"][1]
+                ports = bridge["ports"][1]
+        
+        if target_bridge is None:
+            raise Exception("the bridge is not found : %s" % bridge_name)
+        
+        print target_bridge
+        interface_tmp_id = "row%s" % str(uuid.uuid4()).replace("-", "_")
+        port_tmp_id = "row%s" % str(uuid.uuid4()).replace("-", "_")
+        
+        ports.append(["named-uuid", port_tmp_id])
+        
         query = {
             "method":"transact",
             "params":[
                 "Open_vSwitch",
                 {
-                    "uuid-name" : "test",
+                    "uuid-name" : interface_tmp_id,
                     "op" : "insert",
                     "table" : "Interface",
                     "row":{
-                        "name":"enp3s0",
+                        "name":interface_name,
                         "type":""
                     }
                 },
                 {
-                    "uuid-name": "test_p",
+                    "uuid-name": port_tmp_id,
                     "op" : "insert",
                     "table" : "Port",
                     "row":{
-                        "name" : "enp3s0",
+                        "name" : interface_name,
                         "interfaces":[
                             "named-uuid",
-                            "test"
-                        ],
-                        "tag": 222
+                            interface_tmp_id
+                        ]
                     }
                 },
                 {
@@ -170,44 +201,28 @@ class OvsdbClient:
                             "==",
                             [
                                 "uuid",
-                                "a950561f-8068-45bb-a25a-83bcd8b3f944"
+                                target_bridge
                             ]
                         ]
                     ],
                     "row": {
                         "ports": [
                             "set",
-                            [
-                                [
-                                    "named-uuid",
-                                    "test_p"
-                                ],
-                                [
-                                    "uuid",
-                                    "35243057-2ffd-4514-8d03-7b2b2cb05a8e"
-                                ],
-                                [
-                                    "uuid",
-                                    "60a408b3-5ac5-4ca6-ae94-d66b092b90e2"
-                                ],
-                                [
-                                    "uuid",
-                                    "c43fea7e-9b21-422d-a62f-41048eab1b48"
-                                ],
-                                [
-                                    "uuid",
-                                    "f53502df-5695-4a44-8b83-8f73d16d170d"
-                                ]
-                            ]
+                            ports
                         ]
                     },
                     "op": "update",
                     "table": "Bridge"
-                },
-                
+                }
             ],
-            "id":100
+            "id":self._transact_id
         }
+        self._transact_id += 1
+        
+        if isinstance(vlan, list):
+            raise Exception("not supported configure trunk port")
+        if isinstance(vlan, int):
+            query["params"][2]["row"]["tag"] = vlan
         
         pprint(query)
         result = self._send(query)
@@ -217,4 +232,5 @@ class OvsdbClient:
 if __name__ == '__main__':
     ovsdb = OvsdbClient(5678)
     
-    ovsdb.add_interface()
+    #ovsdb.get_interface()
+    ovsdb.add_interface("ovs-docker", "enp2s0", 400)
