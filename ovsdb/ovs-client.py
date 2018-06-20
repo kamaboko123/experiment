@@ -220,7 +220,8 @@ class OvsdbClient:
         self._transact_id += 1
         
         if isinstance(vlan, list):
-            raise Exception("not supported configure trunk port")
+            query["params"][2]["row"]["trunks"] = ["set", vlan]
+            #raise Exception("not supported configure trunk port")
         if isinstance(vlan, int):
             query["params"][2]["row"]["tag"] = vlan
         
@@ -233,4 +234,4 @@ if __name__ == '__main__':
     ovsdb = OvsdbClient(5678)
     
     #ovsdb.get_interface()
-    ovsdb.add_interface("ovs-docker", "enp2s0", 400)
+    ovsdb.add_interface("ovs-docker", "enp2s0", [100,200])
