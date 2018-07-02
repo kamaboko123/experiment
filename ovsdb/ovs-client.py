@@ -50,25 +50,7 @@ class OvsdbClient:
         if "error" not in result.keys() or result["error"] is not None:
             raise Exception("なんかのエラー")
         
-        ret = {}
-        
-        for port in result["result"][0]["rows"]:
-            #pprint.pprint(port)
-            uuid = port["_uuid"][1]
-            name = port["name"]
-            tag = port["tag"]
-            trunks = port["trunks"][1]
-            
-            if type(tag) is not int:
-                tag = []
-            
-            ret[uuid] = {
-                "name" : name,
-                "tag" : tag,
-                "trunks" : trunks
-            }
-        
-        return ret
+        return result["result"][0]["rows"]
     
     def get_bridges(self):
         query = {
@@ -90,39 +72,30 @@ class OvsdbClient:
             raise Exception("なんかのエラー")
         
         ret = {}
-        """
-        for br in result["result"][0]["rows"]:
-            uuid = br["_uuid"][1]
-            name = br["name"]
-            
-            ports = []
-            for port in br["ports"][1]:
-                ports.append(port[1])
-            
-            ret[uuid] = {
-                "name" : name,
-                "ports" : ports
-            }
-        
-        return ret
-        """
         return result["result"][0]["rows"]
     
+    """
     def get_bridge_config(self):
         bridges = self.get_bridges()
         ports = self.get_ports()
         
-        ret = []
+        print bridges
+        print ports
         
-        for br in bridges.values():
+        ret = {}
+        
+        for br in bridges:
             ret[br["name"]] = {
                 "ports" : {}
             }
             
             for port_uuid in br["ports"]:
+                if port_uuid == "set":
+                    continue
                 ret[br["name"]]["ports"][port_uuid] = ports[port_uuid]
             
         return ret
+    """
     
     def get_interfaces(self):
         query = {
@@ -230,8 +203,43 @@ class OvsdbClient:
         
         pprint(result)
     
+    def del_interface(self, bridge_name, interface_name):
+        target_bridge = None
+        for br in self.get_bridges():
+            if br["name"] == bridge_name:
+                target_bridge = br
+        
+        if target_bridge is None:
+            raise Exception("the bridge is not found : %s" % bridge_name)
+        
+        print target_bridge
+        
+        target_port = None
+        
+        for port in self.get_ports():
+            if port["name"] == interface_name:
+                target_port = port
+        
+        if target_port is None:
+            raise Exception("the interface is not found : %s" % interface_name)
+        
+        print target_port
+        
+        find_port = False
+        br_ports = target_bridge["ports"][1]
+        for port in br_ports:
+            if port[1] == target_port["_uuid"][1]:
+                find_port = True
+        
+        if not find_port :
+            raise Exception("interface \"%s\" is not attached to bridge \"%s\"." % (interface_name, bridge_name))
+        
+        #TODO: send query to delete port from bridge
+        
+    
 if __name__ == '__main__':
     ovsdb = OvsdbClient(5678)
     
     #ovsdb.get_interface()
-    ovsdb.add_interface("ovs-docker", "enp2s0", [100,200])
+    #ovsdb.add_interface("ovs-docker", "enp2s0", [100,200])
+    ovsdb.del_interface("ovs-docker", "enp4s0")
