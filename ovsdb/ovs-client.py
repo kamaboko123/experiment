@@ -131,7 +131,8 @@ class OvsdbClient:
             print("%s : %s" % (bridge["name"], bridge["_uuid"]))
             if bridge_name == bridge["name"]:
                 target_bridge = bridge["_uuid"][1]
-                ports = bridge["ports"][1]
+                ports.append(bridge["ports"])
+                #print("!!%s" % bridge["ports"])
         
         if target_bridge is None:
             raise Exception("the bridge is not found : %s" % bridge_name)
@@ -234,12 +235,54 @@ class OvsdbClient:
         if not find_port :
             raise Exception("interface \"%s\" is not attached to bridge \"%s\"." % (interface_name, bridge_name))
         
-        #TODO: send query to delete port from bridge
         
+        set_port = []
+        
+        for port in target_bridge["ports"][1]:
+            if port[1] == target_port["_uuid"][1]:
+                continue
+            set_port.append(port)
+        
+        print set_port
+        
+        query = {
+            "method":"transact",
+            "params":[
+                "Open_vSwitch",
+                {
+                    "where": [
+                        [
+                            "_uuid",
+                            "==",
+                            [
+                                "uuid",
+                                target_bridge["_uuid"][1]
+                            ]
+                        ]
+                    ],
+                    "row": {
+                        "ports": [
+                            "set",
+                            set_port
+                        ]
+                    },
+                    "op": "update",
+                    "table": "Bridge"
+                }
+            ],
+            "id":self._transact_id
+        }
+        self._transact_id += 1
+        
+        pprint(query)
+        result = self._send(query)
+        
+        pprint(result)
     
 if __name__ == '__main__':
     ovsdb = OvsdbClient(5678)
     
     #ovsdb.get_interface()
     #ovsdb.add_interface("ovs-docker", "enp2s0", [100,200])
-    ovsdb.del_interface("ovs-docker", "enp4s0")
+    #ovsdb.add_interface("ovs-docker", "enp4s0")
+    #ovsdb.del_interface("ovs-docker", "enp4s0")
