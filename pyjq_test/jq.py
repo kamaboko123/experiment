@@ -12,5 +12,6 @@ if __name__ == "__main__":
     with open(json_file, "r") as f:
         json_data = json.loads(f.read())
     
-    print json.dumps(pyjq.all('[.users[] | select (.data.age == 27) | .name]', json_data)[0])
+    print pyjq.all('.users[] | select (.data.age == 27) | .name', json_data)
+    print json.dumps(pyjq.all('.users[] | select (.data.age == 27 and .name=="Seri") | .name', json_data))
     
