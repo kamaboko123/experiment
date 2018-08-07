@@ -31,13 +31,13 @@ OPERAND_TYPE pop(){
 void add(){
     int n1 = pop();
     int n2 = pop();
-    st.push(n1 + n2);
+    push(n1 + n2);
 }
 
 void sub(){
     int n1 = pop();
     int n2 = pop();
-    st.push(n2 - n1);
+    push(n2 - n1);
 }
 
 int main(void){
@@ -49,25 +49,39 @@ int main(void){
     Word *p = (Word *)buf;
     
     dump_stack(st);
-    for(int i = 0; p->op != INS_END; i += sizeof(Word)){
+    while(p->op != INS_END){
         switch(p->op){
             case INS_PUSH:
+                fprintf(stderr, "(PUSH 0x%.2x) ", p->arg);
                 push(p->arg);
+                dump_stack(st);
                 break;
             case INS_POP:
+                fprintf(stderr, "(POP)       ");
                 pop();
+                dump_stack(st);
                 break;
             case INS_ADD:
+                fprintf(stderr, "(ADD)       ");
                 add();
+                dump_stack(st);
                 break;
             case INS_SUB:
+                fprintf(stderr, "(SUB)       ");
                 sub();
+                dump_stack(st);
+                break;
+            case INS_JMP:
+                fprintf(stderr, "(JMP 0x%.2x)  ", p->arg);
+                p = (Word *)buf + p->arg;
+                dump_stack(st);
+                continue;
                 break;
             default:
                 break;
         }
+        
         p++;
-        dump_stack(st);
     }
     
     return(0);
