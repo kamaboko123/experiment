@@ -8,7 +8,7 @@ TARGET_DIR = ./bin
 
 all: stm test_bin
 
-test: stm test_bin
+run: stm test_bin
 	$(TARGET_DIR)/stm < $(TARGET_DIR)/stmbin.o
 
 stm: $(SRC)
