@@ -11,6 +11,9 @@ namespace easy_stack{
         std::size_t _max_size;
         std::size_t _size;
         
+        stack<T>(const stack<T> &src){};
+        stack<T> &operator=(const stack<T> &src){};
+        
     public:
         stack<T>(std::size_t stack_size){
             _max_size = stack_size;
