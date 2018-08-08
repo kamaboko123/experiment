@@ -11,7 +11,9 @@
 #define INS_LT 0x07
 #define INS_JMP 0x08
 #define INS_LABEL 0x09
-#define INS_END 0xFF
+#define INS_BEQ0 0x10
+#define INS_END 0xFE
+#define _EOF 0xFF
 
 typedef uint16_t DATA_TYPE;
 

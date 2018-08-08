@@ -33,8 +33,14 @@ int main(int argc, char *argv[]){
         INS_PUSH, 0x02,
         INS_PUSH, 0x03,
         INS_MUL, 0x00,
-        INS_LT, 0x00,
-        INS_END, 0x00
+        INS_GT, 0x00,
+        INS_BEQ0, 0x02,
+        INS_END, 0x00,
+        
+        INS_LABEL, 0x02,
+        INS_PUSH, 0xF0,
+        INS_END, 0x00,
+        _EOF, 0x00
     };
     
     int fd = open(argv[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);

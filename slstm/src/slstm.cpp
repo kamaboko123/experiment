@@ -62,7 +62,7 @@ int main(void){
     
     size_t pc = 0;
     Word *p = head + pc;
-    while(p->op != INS_END){
+    while(p->op != _EOF){
         p = head + pc;
         if(p->op == INS_LABEL){
             label[p->arg] = pc;
@@ -120,6 +120,15 @@ int main(void){
                 pc = label[p->arg];
                 st._dump();
                 continue;
+                break;
+            case INS_BEQ0:
+                fprintf(stderr, "(BEQ0 0x%.2x) ", p->arg);
+                if(pop() == 0){
+                    pc = label[p->arg];
+                    st._dump();
+                    continue;
+                }
+                st._dump();
                 break;
             default:
                 break;
