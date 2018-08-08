@@ -1,21 +1,13 @@
 #include <cstdio>
-#include <stack>
 #include <cstdint>
 #include <unistd.h>
+#include "easy_stack.hpp"
 #include "word.hpp"
 
 #define BUF_SIZE 256
+#define STACK_SIZE 256
 
-std::stack<DATA_TYPE> st;
-
-void dump_stack(std::stack<DATA_TYPE> st){
-    fprintf(stderr, "|Stack|");
-    while(st.size() > 0){
-        fprintf(stderr, " 0x%.2x", st.top());
-        st.pop();
-    }
-    fprintf(stderr, "\n");
-}
+easy_stack::stack<DATA_TYPE> st(STACK_SIZE);
 
 void push(DATA_TYPE n){
     st.push(n);
@@ -48,33 +40,32 @@ int main(void){
     
     Word *p = (Word *)buf;
     
-    dump_stack(st);
     while(p->op != INS_END){
         switch(p->op){
             case INS_PUSH:
                 fprintf(stderr, "(PUSH 0x%.2x) ", p->arg);
                 push(p->arg);
-                dump_stack(st);
+                st._dump();
                 break;
             case INS_POP:
                 fprintf(stderr, "(POP)       ");
                 pop();
-                dump_stack(st);
+                st._dump();
                 break;
             case INS_ADD:
                 fprintf(stderr, "(ADD)       ");
                 add();
-                dump_stack(st);
+                st._dump();
                 break;
             case INS_SUB:
                 fprintf(stderr, "(SUB)       ");
                 sub();
-                dump_stack(st);
+                st._dump();
                 break;
             case INS_JMP:
                 fprintf(stderr, "(JMP 0x%.2x)  ", p->arg);
                 p = (Word *)buf + p->arg;
-                dump_stack(st);
+                st._dump();
                 continue;
                 break;
             default:
