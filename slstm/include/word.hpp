@@ -6,7 +6,11 @@
 #define INS_POP 0x02
 #define INS_ADD 0x03
 #define INS_SUB 0x04
-#define INS_JMP 0x05
+#define INS_MUL 0x05
+#define INS_GT 0x06
+#define INS_LT 0x07
+#define INS_JMP 0x08
+#define INS_LABEL 0x09
 #define INS_END 0xFF
 
 typedef uint16_t DATA_TYPE;

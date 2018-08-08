@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
         INS_ADD, 0x00,
         INS_PUSH, 0x02,
         INS_SUB, 0x00,
-        INS_JMP, 0x10,
+        INS_JMP, 0x01,
         INS_DUM, 0x00,
         INS_DUM, 0x00,
         INS_DUM, 0x00,
@@ -29,9 +29,11 @@ int main(int argc, char *argv[]){
         INS_DUM, 0x00,
         INS_DUM, 0x00,
         
+        INS_LABEL, 0x01,
         INS_PUSH, 0x02,
         INS_PUSH, 0x03,
-        INS_ADD, 0x00,
+        INS_MUL, 0x00,
+        INS_LT, 0x00,
         INS_END, 0x00
     };
     

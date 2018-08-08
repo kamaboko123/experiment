@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <unistd.h>
+#include <unordered_map>
 #include "easy_stack.hpp"
 #include "word.hpp"
 
@@ -32,15 +33,52 @@ void sub(){
     push(n2 - n1);
 }
 
+void mul(){
+    int n1 = pop();
+    int n2 = pop();
+    push(n2 * n1);
+}
+
+void gt(){
+    int n1 = pop();
+    int n2 = pop();
+    push(n1 < n2);
+}
+
+void lt(){
+    int n1 = pop();
+    int n2 = pop();
+    push(n1 > n2);
+}
+
 int main(void){
-    fprintf(stderr, "word length : %ld\n", sizeof(Word));
     
-    uint8_t buf[BUF_SIZE] = {0};
+    std::unordered_map<DATA_TYPE, std::size_t> label;
+    
+    std::size_t buf[BUF_SIZE] = {0};
     read(0, buf, BUF_SIZE);
     
-    Word *p = (Word *)buf;
+    Word *head = (Word *)buf;
     
+    size_t pc = 0;
+    Word *p = head + pc;
     while(p->op != INS_END){
+        p = head + pc;
+        if(p->op == INS_LABEL){
+            label[p->arg] = pc;
+        }
+        pc++;
+    }
+    
+    fprintf(stderr, "word length : %ld\n", sizeof(Word));
+    for(auto itr = label.begin(); itr != label.end(); itr++){
+        fprintf(stderr, "[label : offset] %d : %ld\n", itr->first, itr->second);
+    }
+    
+    pc = 0;
+    p = head + pc;
+    while(p->op != INS_END){
+        p = head + pc;
         switch(p->op){
             case INS_PUSH:
                 fprintf(stderr, "(PUSH 0x%.2x) ", p->arg);
@@ -62,9 +100,24 @@ int main(void){
                 sub();
                 st._dump();
                 break;
+            case INS_MUL:
+                fprintf(stderr, "(MUL)       ");
+                mul();
+                st._dump();
+                break;
+            case INS_GT:
+                fprintf(stderr, "(GT)        ");
+                gt();
+                st._dump();
+                break;
+            case INS_LT:
+                fprintf(stderr, "(LT)        ");
+                lt();
+                st._dump();
+                break;
             case INS_JMP:
                 fprintf(stderr, "(JMP 0x%.2x)  ", p->arg);
-                p = (Word *)buf + p->arg;
+                pc = label[p->arg];
                 st._dump();
                 continue;
                 break;
@@ -72,7 +125,7 @@ int main(void){
                 break;
         }
         
-        p++;
+        pc++;
     }
     
     return(0);
