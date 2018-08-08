@@ -6,9 +6,9 @@
 
 #define BUF_SIZE 256
 
-std::stack<OPERAND_TYPE> st;
+std::stack<DATA_TYPE> st;
 
-void dump_stack(std::stack<OPERAND_TYPE> st){
+void dump_stack(std::stack<DATA_TYPE> st){
     fprintf(stderr, "|Stack|");
     while(st.size() > 0){
         fprintf(stderr, " 0x%.2x", st.top());
@@ -17,11 +17,11 @@ void dump_stack(std::stack<OPERAND_TYPE> st){
     fprintf(stderr, "\n");
 }
 
-void push(OPERAND_TYPE n){
+void push(DATA_TYPE n){
     st.push(n);
 }
 
-OPERAND_TYPE pop(){
+DATA_TYPE pop(){
     int n = st.top();
     st.pop();
     

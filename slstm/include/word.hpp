@@ -9,11 +9,11 @@
 #define INS_JMP 0x05
 #define INS_END 0xFF
 
-typedef uint16_t OPERAND_TYPE;
+typedef uint16_t DATA_TYPE;
 
 typedef struct Word{
     uint8_t op;
-    OPERAND_TYPE arg;
+    DATA_TYPE arg;
 } Word;
 
 #endif
