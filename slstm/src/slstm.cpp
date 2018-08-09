@@ -60,7 +60,7 @@ int main(void){
     read(0, buf, BUF_SIZE);
     
     slbin_header *header = (slbin_header *)buf;
-    Word *phead = (Word *)header + 1;
+    Word *phead = (Word *)(header + 1);
     
     size_t pc = 0;
     Word *p = phead + pc;
@@ -81,21 +81,29 @@ int main(void){
         pc++;
     }
     
-    fprintf(stderr, "word length : %ld\n", sizeof(Word));
+    fprintf(stderr, "----------[debug info]----------\n");
+    fprintf(stderr, "word length(bytes) : %ld\n", sizeof(Word));
+    fprintf(stderr, "program length(bytes) : %ld\n", header->size);
+    fprintf(stderr, "program length(steps) : %ld\n", length);
+    fprintf(stderr, "\n");
+    
     for(auto itr = label.begin(); itr != label.end(); itr++){
         fprintf(stderr, "[label : offset] %d : %ld\n", itr->first, itr->second);
     }
     for(auto itr = func.begin(); itr != func.end(); itr++){
         fprintf(stderr, "[func  : offset] %d : %ld\n", itr->first, itr->second);
     }
+    fprintf(stderr, "--------------------------------\n");
     
     pc = 0;
     p = phead + pc;
     while(pc <= length){
         p = phead + pc;
+        
+        fprintf(stderr, "pc=%.4ld ", pc);
         switch(p->op){
             case INS_PUSH:
-                fprintf(stderr, "(PUSH 0x%.2x)   ", p->arg);
+                fprintf(stderr, "(PUSH 0x%.2X)   ", p->arg);
                 push(p->arg);
                 st._dump();
                 break;
@@ -130,13 +138,13 @@ int main(void){
                 st._dump();
                 break;
             case INS_JMP:
-                fprintf(stderr, "(JMP 0x%.2x)    ", p->arg);
+                fprintf(stderr, "(JMP 0x%.2X)    ", p->arg);
                 pc = label[p->arg];
                 st._dump();
                 continue;
                 break;
             case INS_BEQ0:
-                fprintf(stderr, "(BEQ0 0x%.2x)   ", p->arg);
+                fprintf(stderr, "(BEQ0 0x%.2X)   ", p->arg);
                 if(pop() == 0){
                     pc = label[p->arg];
                     st._dump();
@@ -146,26 +154,26 @@ int main(void){
                 break;
             case INS_ENTRY:
                 bp = st.sp();
-                fprintf(stderr, "(ENTRY 0x%.2x, bp=%p)\n", p->arg, bp);
+                fprintf(stderr, "(ENTRY 0x%.2X, bp=%p)\n", p->arg, bp);
                 break;
             case INS_FRAME:
                 if ((p - 1)->op != INS_ENTRY){
                     fprintf(stderr, "ERROR! INS_FRAME must be used first of functions.\n");
                     exit(-1);
                 }
-                fprintf(stderr, "(FRAME 0x%.2x)  ", p->arg);
+                fprintf(stderr, "(FRAME 0x%.2X)  ", p->arg);
                 for(int i = 0; i < p->arg; i++){
                     push(0x00);
                 }
                 st._dump();
                 break;
             case INS_STOREL:
-                fprintf(stderr, "(STOREL 0x%.2x) ", p->arg);
+                fprintf(stderr, "(STOREL 0x%.2X) ", p->arg);
                 *(bp + p->arg) = st.top();
                 st._dump();
                 break;
             case INS_LOADL:
-                fprintf(stderr, "(LOADL 0x%.2x)  ", p->arg);
+                fprintf(stderr, "(LOADL 0x%.2X)  ", p->arg);
                 push(*(bp + p->arg));
                 st._dump();
                 break;
@@ -173,6 +181,7 @@ int main(void){
                 fprintf(stderr, "(END)\n");
                 goto end;
             default:
+                fprintf(stderr, "\n");
                 break;
         }
         

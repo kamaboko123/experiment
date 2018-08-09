@@ -30,7 +30,6 @@ int main(int argc, char *argv[]){
         INS_DUM, 0x00,
         INS_DUM, 0x00,
         INS_DUM, 0x00,
-        INS_DUM, 0x00,
         
         INS_LABEL, 0x01,
         INS_PUSH, 0x02,

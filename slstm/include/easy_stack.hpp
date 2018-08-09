@@ -58,7 +58,7 @@ namespace easy_stack{
             T *p = _sp - 1;
             fprintf(stderr, "|");
             while(p >= _bottom){
-                fprintf(stderr, " 0x%.02x", *p);
+                fprintf(stderr, " 0x%.02X", *p);
                 p--;
             }
             fprintf(stderr, " |\n");
