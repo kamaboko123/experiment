@@ -12,8 +12,11 @@ int main(int argc, char *argv[]){
     }
     
     Word TEST_BIN[] = {
+        INS_ENTRY, 0x00,
+        INS_FRAME, 0x02,
         INS_PUSH, 0x02,
         INS_PUSH, 0x03,
+        INS_STOREL, 0x00,
         INS_PUSH, 0x05,
         INS_POP, 0x00,
         INS_ADD, 0x00,
@@ -38,8 +41,16 @@ int main(int argc, char *argv[]){
         INS_END, 0x00,
         
         INS_LABEL, 0x02,
-        INS_PUSH, 0xF0,
+        INS_PUSH, 0xFF,
+        INS_PUSH, 0xFF,
+        INS_PUSH, 0x11,
+        INS_STOREL, 0x01,
+        INS_LOADL, 0x00,
         INS_END, 0x00,
+        
+        INS_ENTRY, 0x01,
+        INS_PUSH, 0xAB,
+        
         _EOF, 0x00
     };
     

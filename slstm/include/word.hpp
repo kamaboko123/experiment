@@ -12,6 +12,10 @@
 #define INS_JMP 0x08
 #define INS_LABEL 0x09
 #define INS_BEQ0 0x10
+#define INS_ENTRY 0x11
+#define INS_FRAME 0x12
+#define INS_LOADL 0x13
+#define INS_STOREL 0x14
 #define INS_END 0xFE
 #define _EOF 0xFF
 

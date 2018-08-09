@@ -54,6 +54,7 @@ void lt(){
 int main(void){
     
     std::unordered_map<DATA_TYPE, std::size_t> label;
+    std::unordered_map<DATA_TYPE, std::size_t> func;
     
     std::size_t buf[BUF_SIZE] = {0};
     read(0, buf, BUF_SIZE);
@@ -62,17 +63,28 @@ int main(void){
     
     size_t pc = 0;
     Word *p = head + pc;
+    
+    DATA_TYPE* bp = 0;
+    
     while(p->op != _EOF){
         p = head + pc;
         if(p->op == INS_LABEL){
             label[p->arg] = pc;
         }
+        
+        else if(p->op == INS_ENTRY){
+            func[p->arg] = pc;
+        }
+        
         pc++;
     }
     
     fprintf(stderr, "word length : %ld\n", sizeof(Word));
     for(auto itr = label.begin(); itr != label.end(); itr++){
         fprintf(stderr, "[label : offset] %d : %ld\n", itr->first, itr->second);
+    }
+    for(auto itr = func.begin(); itr != func.end(); itr++){
+        fprintf(stderr, "[func  : offset] %d : %ld\n", itr->first, itr->second);
     }
     
     pc = 0;
@@ -81,53 +93,78 @@ int main(void){
         p = head + pc;
         switch(p->op){
             case INS_PUSH:
-                fprintf(stderr, "(PUSH 0x%.2x) ", p->arg);
+                fprintf(stderr, "(PUSH 0x%.2x)   ", p->arg);
                 push(p->arg);
                 st._dump();
                 break;
             case INS_POP:
-                fprintf(stderr, "(POP)       ");
+                fprintf(stderr, "(POP)         ");
                 pop();
                 st._dump();
                 break;
             case INS_ADD:
-                fprintf(stderr, "(ADD)       ");
+                fprintf(stderr, "(ADD)         ");
                 add();
                 st._dump();
                 break;
             case INS_SUB:
-                fprintf(stderr, "(SUB)       ");
+                fprintf(stderr, "(SUB)         ");
                 sub();
                 st._dump();
                 break;
             case INS_MUL:
-                fprintf(stderr, "(MUL)       ");
+                fprintf(stderr, "(MUL)         ");
                 mul();
                 st._dump();
                 break;
             case INS_GT:
-                fprintf(stderr, "(GT)        ");
+                fprintf(stderr, "(GT)          ");
                 gt();
                 st._dump();
                 break;
             case INS_LT:
-                fprintf(stderr, "(LT)        ");
+                fprintf(stderr, "(LT)          ");
                 lt();
                 st._dump();
                 break;
             case INS_JMP:
-                fprintf(stderr, "(JMP 0x%.2x)  ", p->arg);
+                fprintf(stderr, "(JMP 0x%.2x)    ", p->arg);
                 pc = label[p->arg];
                 st._dump();
                 continue;
                 break;
             case INS_BEQ0:
-                fprintf(stderr, "(BEQ0 0x%.2x) ", p->arg);
+                fprintf(stderr, "(BEQ0 0x%.2x)   ", p->arg);
                 if(pop() == 0){
                     pc = label[p->arg];
                     st._dump();
                     continue;
                 }
+                st._dump();
+                break;
+            case INS_ENTRY:
+                bp = st.sp();
+                fprintf(stderr, "(ENTRY 0x%.2x, bp=%p)\n", p->arg, bp);
+                break;
+            case INS_FRAME:
+                if ((p - 1)->op != INS_ENTRY){
+                    fprintf(stderr, "ERROR! INS_FRAME must be used first of functions.\n");
+                    exit(-1);
+                }
+                fprintf(stderr, "(FRAME 0x%.2x)  ", p->arg);
+                for(int i = 0; i < p->arg; i++){
+                    push(0x00);
+                }
+                st._dump();
+                break;
+            case INS_STOREL:
+                fprintf(stderr, "(STOREL 0x%.2x) ", p->arg);
+                *(bp + p->arg) = st.top();
+                st._dump();
+                break;
+            case INS_LOADL:
+                fprintf(stderr, "(LOADL 0x%.2x)  ", p->arg);
+                push(*(bp + p->arg));
                 st._dump();
                 break;
             default:
