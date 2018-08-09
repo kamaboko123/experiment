@@ -17,7 +17,6 @@
 #define INS_LOADL 0x13
 #define INS_STOREL 0x14
 #define INS_END 0xFE
-#define _EOF 0xFF
 
 typedef uint16_t DATA_TYPE;
 
@@ -25,5 +24,9 @@ typedef struct Word{
     uint8_t op;
     DATA_TYPE arg;
 } Word;
+
+typedef struct slbin_header{
+    size_t size;
+} slbin_header;
 
 #endif

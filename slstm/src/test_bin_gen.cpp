@@ -46,15 +46,19 @@ int main(int argc, char *argv[]){
         INS_PUSH, 0x11,
         INS_STOREL, 0x01,
         INS_LOADL, 0x00,
-        INS_END, 0x00,
+        //INS_END, 0x00,
         
         INS_ENTRY, 0x01,
+        INS_FRAME, 0x01,
         INS_PUSH, 0xAB,
-        
-        _EOF, 0x00
+        INS_STOREL, 0x00,
+        INS_END, 0x00
     };
     
+    slbin_header header = {sizeof(TEST_BIN)};
+    
     int fd = open(argv[1], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    write(fd, &header, sizeof(slbin_header));
     write(fd, TEST_BIN, sizeof(TEST_BIN));
     close(fd);
     

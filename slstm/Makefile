@@ -18,6 +18,7 @@ stm: $(SRC)
 test_bin: $(SRC)
 	mkdir -p $(TARGET_DIR)
 	$(CC) $(CFLAGS) $(INCLUDE) -o $(TARGET_DIR)/test_bin_gen $(SRC_DIR)/test_bin_gen.cpp
+	rm -f $(TARGET_DIR)/stmbin.o
 	$(TARGET_DIR)/test_bin_gen $(TARGET_DIR)/stmbin.o
 
 clean:

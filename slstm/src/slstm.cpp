@@ -59,15 +59,17 @@ int main(void){
     std::size_t buf[BUF_SIZE] = {0};
     read(0, buf, BUF_SIZE);
     
-    Word *head = (Word *)buf;
+    slbin_header *header = (slbin_header *)buf;
+    Word *phead = (Word *)header + 1;
     
     size_t pc = 0;
-    Word *p = head + pc;
+    Word *p = phead + pc;
     
     DATA_TYPE* bp = 0;
     
-    while(p->op != _EOF){
-        p = head + pc;
+    size_t length = header->size / sizeof(Word);
+    while(pc <= length){
+        p = phead + pc;
         if(p->op == INS_LABEL){
             label[p->arg] = pc;
         }
@@ -88,9 +90,9 @@ int main(void){
     }
     
     pc = 0;
-    p = head + pc;
-    while(p->op != INS_END){
-        p = head + pc;
+    p = phead + pc;
+    while(pc <= length){
+        p = phead + pc;
         switch(p->op){
             case INS_PUSH:
                 fprintf(stderr, "(PUSH 0x%.2x)   ", p->arg);
@@ -167,6 +169,9 @@ int main(void){
                 push(*(bp + p->arg));
                 st._dump();
                 break;
+            case INS_END:
+                fprintf(stderr, "(END)\n");
+                goto end;
             default:
                 break;
         }
@@ -174,5 +179,6 @@ int main(void){
         pc++;
     }
     
+end:
     return(0);
 }
