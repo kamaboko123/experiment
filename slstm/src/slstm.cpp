@@ -53,21 +53,23 @@ void lt(){
 
 int main(void){
     
-    std::unordered_map<DATA_TYPE, std::size_t> label;
-    std::unordered_map<DATA_TYPE, std::size_t> func;
+    std::unordered_map<DATA_TYPE, std::uint16_t> label;
+    std::unordered_map<DATA_TYPE, std::uint16_t> func;
     
-    std::size_t buf[BUF_SIZE] = {0};
+    std::uint16_t buf[BUF_SIZE] = {0};
     read(0, buf, BUF_SIZE);
     
     slbin_header *header = (slbin_header *)buf;
     Word *phead = (Word *)(header + 1);
     
-    size_t pc = 0;
+    uint16_t pc = 0;
     Word *p = phead + pc;
     
-    DATA_TYPE* bp = 0;
+    uint16_t bp = 0;
     
-    size_t length = header->size / sizeof(Word);
+    DATA_TYPE ret;
+    
+    uint16_t length = header->size / sizeof(Word);
     while(pc <= length){
         p = phead + pc;
         if(p->op == INS_LABEL){
@@ -83,15 +85,15 @@ int main(void){
     
     fprintf(stderr, "----------[debug info]----------\n");
     fprintf(stderr, "word length(bytes) : %ld\n", sizeof(Word));
-    fprintf(stderr, "program length(bytes) : %ld\n", header->size);
-    fprintf(stderr, "program length(steps) : %ld\n", length);
+    fprintf(stderr, "program length(bytes) : %d\n", header->size);
+    fprintf(stderr, "program length(steps) : %d\n", length);
     fprintf(stderr, "\n");
     
     for(auto itr = label.begin(); itr != label.end(); itr++){
-        fprintf(stderr, "[label : offset] %d : %ld\n", itr->first, itr->second);
+        fprintf(stderr, "[label : offset] %d : %d\n", itr->first, itr->second);
     }
     for(auto itr = func.begin(); itr != func.end(); itr++){
-        fprintf(stderr, "[func  : offset] %d : %ld\n", itr->first, itr->second);
+        fprintf(stderr, "[func  : offset] %d : %d\n", itr->first, itr->second);
     }
     fprintf(stderr, "--------------------------------\n");
     
@@ -100,7 +102,8 @@ int main(void){
     while(pc <= length){
         p = phead + pc;
         
-        fprintf(stderr, "pc=%.4ld ", pc);
+        fprintf(stderr, "pc=0x%04X, ", pc);
+        fprintf(stderr, "bp=0x%04X ", bp);
         switch(p->op){
             case INS_PUSH:
                 fprintf(stderr, "(PUSH 0x%.2X)   ", p->arg);
@@ -153,8 +156,8 @@ int main(void){
                 st._dump();
                 break;
             case INS_ENTRY:
-                bp = st.sp();
-                fprintf(stderr, "(ENTRY 0x%.2X, bp=%p)\n", p->arg, bp);
+                bp = st.offset();
+                fprintf(stderr, "(ENTRY 0x%.2X, bp=%04d)\n", p->arg, bp);
                 break;
             case INS_FRAME:
                 if ((p - 1)->op != INS_ENTRY){
@@ -169,12 +172,49 @@ int main(void){
                 break;
             case INS_STOREL:
                 fprintf(stderr, "(STOREL 0x%.2X) ", p->arg);
-                *(bp + p->arg) = st.top();
+                *(st.bottom() + bp + p->arg) = st.top();
                 st._dump();
                 break;
             case INS_LOADL:
                 fprintf(stderr, "(LOADL 0x%.2X)  ", p->arg);
-                push(*(bp + p->arg));
+                push(*(st.bottom() + bp + p->arg));
+                st._dump();
+                break;
+            case INS_CALL:
+                fprintf(stderr, "(CALL 0x%.2X)   ", p->arg);
+                push(pc);
+                push(bp);
+                pc = func[p->arg];
+                bp = st.offset();
+                st._dump();
+                continue;
+                break;
+            case INS_RET:
+                fprintf(stderr, "(RET 0x%.2X)    ", p->arg);
+                ret = st.top();
+                st.sp(bp);
+                bp = pop();
+                pc = pop();
+                push(ret);
+                st._dump();
+                break;
+            case INS_LOADA:
+                fprintf(stderr, "(LOADA 0x%.2X)  ", p->arg);
+                push(*(st.bottom() + bp - (p->arg) - 3));
+                st._dump();
+                break;
+            case INS_STOREA:
+                fprintf(stderr, "(STOREA 0x%.2X) ", p->arg);
+                *(st.bottom() + bp - (p->arg) - 3) = pop();
+                st._dump();
+                break;
+            case INS_POPR:
+                fprintf(stderr, "(POPR 0x%.2X)   ", p->arg);
+                ret = pop();
+                for(int i = 0; i < p->arg; i++){
+                    pop();
+                }
+                push(ret);
                 st._dump();
                 break;
             case INS_END:

@@ -11,11 +11,17 @@
 #define INS_LT 0x07
 #define INS_JMP 0x08
 #define INS_LABEL 0x09
-#define INS_BEQ0 0x10
-#define INS_ENTRY 0x11
-#define INS_FRAME 0x12
-#define INS_LOADL 0x13
-#define INS_STOREL 0x14
+#define INS_BEQ0 0x0A
+#define INS_ENTRY 0x0B
+#define INS_FRAME 0x0C
+#define INS_LOADL 0x0D
+#define INS_STOREL 0x0E
+#define INS_CALL 0x0F
+#define INS_RET 0x10
+#define INS_LOADA 0x11
+#define INS_STOREA 0x12
+#define INS_POPR 0x13
+
 #define INS_END 0xFE
 
 typedef uint16_t DATA_TYPE;
@@ -26,7 +32,7 @@ typedef struct Word{
 } Word;
 
 typedef struct slbin_header{
-    size_t size;
+    uint16_t size;
 } slbin_header;
 
 #endif

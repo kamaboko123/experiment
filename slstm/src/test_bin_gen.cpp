@@ -10,7 +10,7 @@ int main(int argc, char *argv[]){
         fprintf(stderr, "You need specify output filename\n");
         return -1;
     }
-    
+    /*
     Word TEST_BIN[] = {
         INS_ENTRY, 0x00,
         INS_FRAME, 0x02,
@@ -35,9 +35,10 @@ int main(int argc, char *argv[]){
         INS_PUSH, 0x02,
         INS_PUSH, 0x03,
         INS_MUL, 0x00,
-        INS_GT, 0x00,
+        INS_LT, 0x00,
         INS_BEQ0, 0x02,
-        INS_END, 0x00,
+        INS_CALL, 0x01,
+        //INS_END, 0x00,
         
         INS_LABEL, 0x02,
         INS_PUSH, 0xFF,
@@ -45,13 +46,38 @@ int main(int argc, char *argv[]){
         INS_PUSH, 0x11,
         INS_STOREL, 0x01,
         INS_LOADL, 0x00,
-        //INS_END, 0x00,
+        INS_END, 0x00,
         
         INS_ENTRY, 0x01,
         INS_FRAME, 0x01,
         INS_PUSH, 0xAB,
         INS_STOREL, 0x00,
-        INS_END, 0x00
+        INS_CALL, 0x02,
+        INS_END, 0x00,
+        
+        INS_ENTRY, 0x02,
+        INS_PUSH, 0xbb,
+        INS_RET, 0x00,
+        INS_END, 0x00,
+    };*/
+    
+    Word TEST_BIN[] = {
+        INS_ENTRY, 0x00,
+        INS_PUSH, 0x01,
+        INS_PUSH, 0x02,
+        INS_CALL, 0x01,
+        INS_POPR, 0x02,
+        INS_END, 0x00,
+        
+        INS_ENTRY, 0x01,
+        INS_FRAME, 0x01,
+        INS_PUSH, 0x02,
+        INS_LOADA, 0x00,
+        INS_LOADA, 0x01,
+        INS_ADD, 0x00,
+        INS_MUL, 0x00,
+        INS_RET, 0x00
+        
     };
     
     slbin_header header = {sizeof(TEST_BIN)};

@@ -8,14 +8,14 @@ namespace easy_stack{
     private:
         T *_bottom;
         T *_sp;
-        std::size_t _max_size;
-        std::size_t _size;
+        std::uint16_t _max_size;
+        std::uint16_t _size;
         
         stack<T>(const stack<T> &src){};
         stack<T> &operator=(const stack<T> &src){};
         
     public:
-        stack<T>(std::size_t stack_size){
+        stack<T>(std::uint16_t stack_size){
             _max_size = stack_size;
             _size = 0;
             _bottom = new T[_max_size]();
@@ -52,6 +52,19 @@ namespace easy_stack{
         
         T *sp(){
             return(_sp);
+        }
+        
+        void sp(uint16_t p){
+            _sp = _bottom + p;
+            _size = p;
+        }
+        
+        T* bottom(){
+            return(_bottom);
+        };
+        
+        T offset(){
+            return(_sp - _bottom);
         }
         
         void _dump(){
