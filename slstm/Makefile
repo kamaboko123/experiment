@@ -6,7 +6,7 @@ SRC = $(wildcard $(SRC_DIR)/*.cpp)
 
 TARGET_DIR = ./bin
 
-all: stm test_bin
+all: stm test_bin compiler
 
 run: stm test_bin
 	$(TARGET_DIR)/stm < $(TARGET_DIR)/stmbin.o
@@ -20,6 +20,10 @@ test_bin: $(SRC)
 	$(CC) $(CFLAGS) $(INCLUDE) -o $(TARGET_DIR)/test_bin_gen $(SRC_DIR)/test_bin_gen.cpp
 	rm -f $(TARGET_DIR)/stmbin.o
 	$(TARGET_DIR)/test_bin_gen $(TARGET_DIR)/stmbin.o
+
+compiler: $(SRC)
+	mkdir -p $(TARGET_DIR)
+	$(CC) $(CFLAGS) $(INCLUDE) -o $(TARGET_DIR)/compiler $(SRC_DIR)/compiler.cpp
 
 clean:
 	rm -rf $(TARGET_DIR)

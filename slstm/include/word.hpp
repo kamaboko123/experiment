@@ -21,7 +21,7 @@
 #define INS_LOADA 0x11
 #define INS_STOREA 0x12
 #define INS_POPR 0x13
-
+#define INS_PRINT 0x14
 #define INS_END 0xFE
 
 typedef uint16_t DATA_TYPE;

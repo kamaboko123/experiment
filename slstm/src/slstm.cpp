@@ -90,10 +90,10 @@ int main(void){
     fprintf(stderr, "\n");
     
     for(auto itr = label.begin(); itr != label.end(); itr++){
-        fprintf(stderr, "[label : offset] %d : %d\n", itr->first, itr->second);
+        fprintf(stderr, "[label : address] 0x%04X : 0x%04X\n", itr->first, itr->second);
     }
     for(auto itr = func.begin(); itr != func.end(); itr++){
-        fprintf(stderr, "[func  : offset] %d : %d\n", itr->first, itr->second);
+        fprintf(stderr, "[func  : address] 0x%04X : 0x%04X\n", itr->first, itr->second);
     }
     fprintf(stderr, "--------------------------------\n");
     
@@ -216,6 +216,10 @@ int main(void){
                 }
                 push(ret);
                 st._dump();
+                break;
+            case INS_PRINT:
+                fprintf(stderr, "(PRINT 0x%.2X)\n", st.top());
+                printf("0x%.2X\n", st.top());
                 break;
             case INS_END:
                 fprintf(stderr, "(END)\n");
